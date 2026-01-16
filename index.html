@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏦 Банк Слонокоин</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <header class="header">
+            <div class="logo">
+                <h1><i class="fas fa-university"></i> Банк Слонокоин</h1>
+                <p class="tagline">Самый надежный криптобанк в сети</p>
+            </div>
+            <div class="network-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Сеть активна</span>
+            </div>
+        </header>
+
+        <!-- Панель авторизации -->
+        <div id="authPanel" class="panel auth-panel">
+            <h2><i class="fas fa-sign-in-alt"></i> Вход в систему</h2>
+            <div class="input-group">
+                <input type="text" id="username" class="input-field" placeholder="Логин" autocomplete="username">
+                <input type="password" id="password" class="input-field" placeholder="Пароль" autocomplete="current-password">
+            </div>
+            <div class="button-group">
+                <button onclick="login()" class="btn primary">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+                <button onclick="register()" class="btn secondary">
+                    <i class="fas fa-user-plus"></i> Регистрация
+                </button>
+            </div>
+            <div id="authMessage" class="message"></div>
+            
+            <div class="admin-login" id="adminLoginSection" style="display: none; margin-top: 20px;">
+                <h3><i class="fas fa-user-shield"></i> Админ-доступ</h3>
+                <input type="password" id="adminCode" class="input-field" placeholder="Код администратора">
+                <button onclick="checkAdminAccess()" class="btn" style="background: #9b59b6; color: white; margin-top: 10px;">
+                    <i class="fas fa-key"></i> Получить доступ
+                </button>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div id="mainContent" class="main-content hidden">
+            <!-- Навигация -->
+            <nav class="nav-tabs">
+                <button onclick="showTab('dashboard')" class="nav-tab active">
+                    <i class="fas fa-home"></i> Дашборд
+                </button>
+                <button onclick="showTab('transfer')" class="nav-tab">
+                    <i class="fas fa-exchange-alt"></i> Переводы
+                </button>
+                <button onclick="showTab('friends')" class="nav-tab">
+                    <i class="fas fa-user-friends"></i> Друзья
+                </button>
+                <button onclick="showTab('credits')" class="nav-tab">
+                    <i class="fas fa-credit-card"></i> Кредиты
+                </button>
+                <button onclick="showTab('history')" class="nav-tab">
+                    <i class="fas fa-history"></i> История
+                </button>
+                <button onclick="showTab('admin')" class="nav-tab" id="adminTabBtn" style="display: none;">
+                    <i class="fas fa-user-shield"></i> Админ
+                </button>
+                <button onclick="logout()" class="nav-tab logout-tab">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </nav>
+
+            <!-- Дашборд -->
+            <div id="dashboardTab" class="tab-content">
+                <div class="user-header">
+                    <div class="user-info">
+                        <h3>Добро пожаловать, <span id="currentUser">User</span>!</h3>
+                        <p><i class="fas fa-code"></i> Ваш код друга: <span id="friendCode" class="code"></span></p>
+                    </div>
+                    <div class="balances">
+                        <div class="balance-card">
+                            <span class="currency">Ваш баланс</span>
+                            <span class="amount" id="userBalance">0.00 SLC</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Быстрые действия</h3>
+                    <div class="action-buttons">
+                        <button onclick="showTab('transfer')" class="action-btn">
+                            <i class="fas fa-paper-plane"></i> Перевод
+                        </button>
+                        <button onclick="showAddFriendModal()" class="action-btn">
+                            <i class="fas fa-user-plus"></i> Добавить друга
+                        </button>
+                        <button onclick="showCreditModal()" class="action-btn">
+                            <i class="fas fa-hand-holding-usd"></i> Взять кредит
+                        </button>
+                        <button onclick="loadQuickTransfers()" class="action-btn">
+                            <i class="fas fa-sync-alt"></i> Обновить
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>Всего переводов</h4>
+                        <p id="totalTransfers">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-coins"></i>
+                        <h4>Выплачено комиссий</h4>
+                        <p id="totalCommission">0 SLC</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-user-friends"></i>
+                        <h4>Друзей</h4>
+                        <p id="friendsCount">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Переводы -->
+            <div id="transferTab" class="tab-content hidden">
+                <h2><i class="fas fa-exchange-alt"></i> Перевод средств</h2>
+                
+                <div class="transfer-types">
+                    <button onclick="selectTransferType('friends')" class="transfer-type-btn active" id="friendsTransferBtn">
+                        <i class="fas fa-user-friends"></i> Друзьям
+                    </button>
+                    <button onclick="selectTransferType('all')" class="transfer-type-btn" id="allTransferBtn">
+                        <i class="fas fa-users"></i> Всем пользователям
+                    </button>
+                </div>
+
+                <div class="transfer-form">
+                    <div class="input-group">
+                        <select id="recipient" class="input-field" style="display: block;">
+                            <option value="">Выберите друга</option>
+                        </select>
+                        <input type="text" id="recipientUsername" class="input-field hidden" placeholder="Введите логин получателя">
+                        <input type="number" id="transferAmount" class="input-field" placeholder="Сумма (SLC)" step="0.01" min="0.01">
+                        <input type="text" id="transferNote" class="input-field" placeholder="Примечание (необязательно)">
+                    </div>
+
+                    <div id="commissionInfo" class="commission-info hidden">
+                        <p>Комиссия: <span id="commissionAmount">0.00</span> SLC (10%)</p>
+                        <p>Итого к списанию: <span id="totalAmount">0.00</span> SLC</p>
+                    </div>
+
+                    <button onclick="sendTransfer()" class="btn primary" style="width: 100%; padding: 15px;">
+                        <i class="fas fa-paper-plane"></i> Отправить перевод
+                    </button>
+                </div>
+
+                <div class="quick-transfers">
+                    <h3><i class="fas fa-bolt"></i> Быстрые переводы</h3>
+                    <div id="quickTransfersList"></div>
+                </div>
+            </div>
+
+            <!-- Остальные вкладки будут аналогично -->
+        </div>
+
+        <!-- Системное сообщение -->
+        <div id="systemMessage" class="system-message hidden"></div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="addFriendModal" class="modal hidden">
+        <div class="modal-content">
+            <h3><i class="fas fa-user-plus"></i> Добавить друга</h3>
+            <input type="text" id="friendCodeInput" class="input-field" placeholder="Введите код друга">
+            <div class="modal-buttons">
+                <button onclick="addFriend()" class="btn primary">Добавить</button>
+                <button onclick="closeModal('addFriendModal')" class="btn secondary">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
